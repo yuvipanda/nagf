@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nagf
+  labels:
+    name: nagf
+  annotations:
+    RunAsUser: "52325"
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nagf
+  namespace: nagf
+  labels:
+    name: nagf
+spec:
+  replicas: 1
+  selector:
+    name: nagf
+  template:
+    metadata:
+      labels:
+        name: nagf
+    spec:
+      containers:
+      - name: nagf
+        image: yuvipanda/nagf:latest
+      ports:
+      - name: http
+        port: 8000
+        containerPort: 8000
+      livenessProbe:
+        httpGet:
+          path: /nagf
+          port: 8000
+        initialDelaySeconds: 5
+        timeoutSeconds: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nagf
+  namespace: nagf
+  labels:
+    toollabs: 'true'
+spec:
+  selector:
+    name: nagf
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+
